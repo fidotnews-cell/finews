@@ -1,6 +1,6 @@
 'use client'
 
-import { getArticles, Article } from '@/app/actions'
+import { getArticles, Article, getSiteSettings, SiteSettings } from '@/app/actions'
 import { ArticleFeed } from '@/components/ArticleFeed'
 import { ArticleDetail } from '@/components/ArticleDetail'
 import { MarketSidebar } from '@/components/MarketSidebar'
@@ -15,6 +15,7 @@ import { useMediaQuery } from 'react-responsive'
 
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([])
+  const [settings, setSettings] = useState<SiteSettings | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const { t } = useLanguage()
@@ -29,6 +30,7 @@ export default function Home() {
     getArticles(null).then((fetchedArticles) => {
       setArticles(fetchedArticles)
     })
+    getSiteSettings().then(setSettings)
   }, [])
 
   if (!isMounted) return null
@@ -64,22 +66,26 @@ export default function Home() {
                 </header>
 
                 {/* Orange Alert Banner */}
-                <div className="bg-[#ff9f43]/10 border-b border-[#ff9f43]/20 p-3 flex items-start gap-2 relative">
-                <span className="text-orange-500 text-xs">📢</span>
-                <p className="text-[10px] text-orange-400 leading-snug pr-4">
-                    建议使用 VPN 服务商，最高节省 10 倍价格。等边际放宽的情境下，你将更容易获得收益。
-                </p>
-                <button className="absolute top-2 right-2 text-orange-500 hover:text-orange-300">×</button>
-                </div>
+                {settings?.topNotification?.active && (
+                  <div className="bg-[#ff9f43]/10 border-b border-[#ff9f43]/20 p-3 flex items-start gap-2 relative">
+                    <span className="text-orange-500 text-xs">📢</span>
+                    <p className="text-[10px] text-orange-400 leading-snug pr-4">
+                      {settings.topNotification.text || '建议使用 VPN 服务商，最高节省 10 倍价格。等边际放宽的情境下，你将更容易获得收益。'}
+                    </p>
+                    <button className="absolute top-2 right-2 text-orange-500 hover:text-orange-300">×</button>
+                  </div>
+                )}
 
                 {/* AI Banner */}
-                <div className="bg-white dark:bg-[#1a1d23] border-b border-gray-200 dark:border-[#222] p-3 flex items-start gap-2 relative">
-                <span className="text-purple-500 text-xs">🤖</span>
-                <p className="text-[10px] text-gray-600 dark:text-gray-400 leading-snug pr-4">
-                    <span className="text-purple-500 dark:text-purple-400 font-bold">AI 提示:</span> 使用你内置的策略模块来构建港股/美股/币圈组合，自动化追踪，自动止盈止损。
-                </p>
-                <button className="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">×</button>
-                </div>
+                {settings?.aiNotification?.active && (
+                  <div className="bg-white dark:bg-[#1a1d23] border-b border-gray-200 dark:border-[#222] p-3 flex items-start gap-2 relative">
+                    <span className="text-purple-500 text-xs">🤖</span>
+                    <p className="text-[10px] text-gray-600 dark:text-gray-400 leading-snug pr-4">
+                      <span className="text-purple-500 dark:text-purple-400 font-bold">AI 提示:</span> {settings.aiNotification.text || '使用你内置的策略模块来构建港股/美股/币圈组合，自动化追踪，自动止盈止损。'}
+                    </p>
+                    <button className="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">×</button>
+                  </div>
+                )}
 
                 <ArticleFeed 
                     initialArticles={articles} 

@@ -88,6 +88,14 @@ export interface SiteSettings {
     url: string
     active: boolean
   }
+  topNotification?: {
+    text: string
+    active: boolean
+  }
+  aiNotification?: {
+    text: string
+    active: boolean
+  }
 }
 
 export async function getSiteSettings() {

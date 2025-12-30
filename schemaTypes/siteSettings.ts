@@ -41,5 +41,41 @@ export default defineType({
         })
       ]
     }),
+    defineField({
+      name: 'topNotification',
+      title: 'Top Notification (Orange)',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'text',
+          title: 'Notification Text',
+          type: 'string',
+        }),
+        defineField({
+          name: 'active',
+          title: 'Is Active?',
+          type: 'boolean',
+          initialValue: true
+        })
+      ]
+    }),
+    defineField({
+      name: 'aiNotification',
+      title: 'AI Notification (Purple)',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'text',
+          title: 'Notification Text',
+          type: 'string',
+        }),
+        defineField({
+          name: 'active',
+          title: 'Is Active?',
+          type: 'boolean',
+          initialValue: true
+        })
+      ]
+    }),
   ],
 })
