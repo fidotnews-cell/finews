@@ -1,0 +1,90 @@
+{
+  "name": "Fi.News - CoinDesk RSS (HTTP Version)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.coindesk.com/arc/outboundfeeds/rss/"
+      },
+      "id": "rss",
+      "name": "CoinDesk RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://y9yii7ro.api.sanity.io/v2021-06-07/data/mutate/production",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SANITY_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mutations",
+              "value": "={{ [ { create: { _type: 'article', title: $json.title, source: 'CoinDesk', sourceUrl: $json.link, publishedAt: $json.isoDate, summary: $json.contentSnippet, category: 'crypto', slug: { _type: 'slug', current: $json.link.split('/').filter(p=>p).pop() } } } ] }}"
+            }
+          ]
+        }
+      },
+      "id": "http-sanity",
+      "name": "Save to Sanity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        650,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "CoinDesk RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinDesk RSS": {
+      "main": [
+        [
+          {
+            "node": "Save to Sanity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

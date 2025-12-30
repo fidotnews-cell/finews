@@ -15,10 +15,15 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/vision": "^5.0.0",
+    "@sanity/vision": "^5.0.1",
+    "hyphenate-style-name": "^1.1.0",
+    "matchmediaquery": "^0.4.2",
+    "prop-types": "^15.8.1",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "sanity": "^5.0.0",
+    "react-responsive": "^10.0.1",
+    "sanity": "^5.0.1",
+    "shallow-equal": "^3.1.0",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {

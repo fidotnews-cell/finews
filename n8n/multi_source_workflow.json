@@ -1,0 +1,197 @@
+{
+  "name": "Fi.News - Multi-Source Ingest",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Schedule (Every Hour)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://www.coindesk.com/arc/outboundfeeds/rss/"
+      },
+      "id": "rss-coindesk",
+      "name": "RSS: CoinDesk",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://cointelegraph.com/rss"
+      },
+      "id": "rss-cointelegraph",
+      "name": "RSS: Cointelegraph",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 250]
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/"
+      },
+      "id": "rss-techcrunch-ai",
+      "name": "RSS: TechCrunch AI",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.bloomberg.com/technology/news.xml"
+      },
+      "id": "rss-bloomberg",
+      "name": "RSS: Bloomberg Tech",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 550]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.title }}" },
+            { "name": "sourceUrl", "value": "={{ $json.link }}" },
+            { "name": "publishedAt", "value": "={{ $json.isoDate }}" },
+            { "name": "summary", "value": "={{ $json.contentSnippet }}" },
+            { "name": "source", "value": "CoinDesk" },
+            { "name": "category", "value": "crypto" }
+          ]
+        }
+      },
+      "id": "fmt-coindesk",
+      "name": "Fmt: CoinDesk",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 100]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.title }}" },
+            { "name": "sourceUrl", "value": "={{ $json.link }}" },
+            { "name": "publishedAt", "value": "={{ $json.isoDate }}" },
+            { "name": "summary", "value": "={{ $json.contentSnippet }}" },
+            { "name": "source", "value": "Cointelegraph" },
+            { "name": "category", "value": "crypto" }
+          ]
+        }
+      },
+      "id": "fmt-cointelegraph",
+      "name": "Fmt: Cointelegraph",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 250]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.title }}" },
+            { "name": "sourceUrl", "value": "={{ $json.link }}" },
+            { "name": "publishedAt", "value": "={{ $json.isoDate }}" },
+            { "name": "summary", "value": "={{ $json.contentSnippet }}" },
+            { "name": "source", "value": "TechCrunch" },
+            { "name": "category", "value": "ai" }
+          ]
+        }
+      },
+      "id": "fmt-techcrunch",
+      "name": "Fmt: TechCrunch",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.title }}" },
+            { "name": "sourceUrl", "value": "={{ $json.link }}" },
+            { "name": "publishedAt", "value": "={{ $json.isoDate }}" },
+            { "name": "summary", "value": "={{ $json.contentSnippet }}" },
+            { "name": "source", "value": "Bloomberg" },
+            { "name": "category", "value": "finance" }
+          ]
+        }
+      },
+      "id": "fmt-bloomberg",
+      "name": "Fmt: Bloomberg",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 550]
+    },
+    {
+      "parameters": {},
+      "id": "merge",
+      "name": "Merge Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "mode": "append"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://y9yii7ro.api.sanity.io/v2021-06-07/data/mutate/production",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SANITY_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mutations",
+              "value": "={{ [ { create: { _type: 'article', title: $json.title, source: $json.source, sourceUrl: $json.sourceUrl, publishedAt: $json.publishedAt, summary: $json.summary, category: $json.category, slug: { _type: 'slug', current: $json.sourceUrl.split('/').filter(p=>p).pop() } } } ] }}"
+            }
+          ]
+        }
+      },
+      "id": "save-sanity",
+      "name": "Save to Sanity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Schedule (Every Hour)": {
+      "main": [
+        [
+          { "node": "RSS: CoinDesk", "type": "main", "index": 0 },
+          { "node": "RSS: Cointelegraph", "type": "main", "index": 0 },
+          { "node": "RSS: TechCrunch AI", "type": "main", "index": 0 },
+          { "node": "RSS: Bloomberg Tech", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "RSS: CoinDesk": { "main": [[{ "node": "Fmt: CoinDesk", "type": "main", "index": 0 }]] },
+    "RSS: Cointelegraph": { "main": [[{ "node": "Fmt: Cointelegraph", "type": "main", "index": 0 }]] },
+    "RSS: TechCrunch AI": { "main": [[{ "node": "Fmt: TechCrunch", "type": "main", "index": 0 }]] },
+    "RSS: Bloomberg Tech": { "main": [[{ "node": "Fmt: Bloomberg", "type": "main", "index": 0 }]] },
+    "Fmt: CoinDesk": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 0 }]] },
+    "Fmt: Cointelegraph": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 1 }]] },
+    "Fmt: TechCrunch": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 2 }]] },
+    "Fmt: Bloomberg": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 3 }]] },
+    "Merge Feeds": { "main": [[{ "node": "Save to Sanity", "type": "main", "index": 0 }]] }
+  }
+}

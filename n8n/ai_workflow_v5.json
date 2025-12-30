@@ -1,0 +1,160 @@
+{
+  "name": "Fi.News - AI Powered Ingest (V5)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Schedule (Every Hour)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": { "url": "https://www.coindesk.com/arc/outboundfeeds/rss/" },
+      "id": "rss-coindesk",
+      "name": "RSS: CoinDesk",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 100]
+    },
+    {
+      "parameters": { "url": "https://cointelegraph.com/rss" },
+      "id": "rss-cointelegraph",
+      "name": "RSS: Cointelegraph",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 250]
+    },
+    {
+      "parameters": { "url": "https://techcrunch.com/category/artificial-intelligence/feed/" },
+      "id": "rss-techcrunch",
+      "name": "RSS: TechCrunch AI",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": { "url": "https://feeds.content.dowjones.io/public/rss/mw_topstories" },
+      "id": "rss-marketwatch",
+      "name": "RSS: MarketWatch",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [450, 550]
+    },
+    {
+      "parameters": {},
+      "id": "merge",
+      "name": "Merge Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [700, 300],
+      "mode": "append"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer YOUR_OPENAI_API_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model", "value": "gpt-4o" },
+            { "name": "response_format", "value": "={{ {\"type\": \"json_object\"} }}" },
+            {
+              "name": "messages",
+              "value": "={{ [ { \"role\": \"system\", \"content\": \"你是 Fi.News 的自动化新闻编辑系统，专注于金融、加密货币、Web3 与 AI 领域。\n你的目标是：\n- 提取关键信息\n- 去除噪音与情绪化语言\n- 用中立、专业、简洁的新闻风格重写内容\n- 准确完成栏目分类与标签生成\n\n规则：\n- 严禁编造事实\n- 严禁夸大、预测或下结论\n- 信息不足时保持克制\n- 输出必须稳定、可机器解析\n\n请处理以下新闻内容，并完成【摘要 + 重写 + 分类 + 标签】。\n\n【可选栏目分类（只能选 1 个，用于页面分类）】\n- crypto\n- web3\n- ai\n- markets\n- macro\n- capital\n- companies\n- regulation\n- data\n\n【分类原则】\n- 根据新闻“核心主题”选择\n- 如果是比特币 / 代币 / 交易所 → crypto\n- 如果是协议 / DeFi / NFT / DAO → web3\n- 如果是 AI 在金融或算力 → ai\n- 如果是宏观经济 / 利率 / 央行 → macro\n- 如果是机构资金 / VC / ETF → capital\n- 如果是公司行为 / 财报 / 产品 → companies\n- 如果是法律 / 政策 / 监管 → regulation\n- 如果是研究 / 指标 / 数据 → data\n\n【标签规则】\n- 3–6 个\n- 小写英文\n- 使用常见金融/加密术语\n- 不要创造新词\n\n请严格按照以下 JSON 格式输出，不要添加任何解释说明：\n{\n  \\"title\\": \\"\\",\n  \\"summary\\": \\"\\",\n  \\"content\\": \\"\\",\n  \\"category\\": \\"\\",\n  \\"tags\\": [],\n  \\"confidence\\": \\"high | medium | low\\"\n}\" }, { \"role\": \"user\", \"content\": \"新闻原文：\n\" + $json.title + \"\n\" + $json.contentSnippet } ] }}"
+            }
+          ]
+        }
+      },
+      "id": "ai-processor",
+      "name": "AI Editor (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = items.map(item => {\n  try {\n    const aiContent = JSON.parse(item.json.choices[0].message.content);\n    return {\n      json: {\n        ...item.json,\n        ai: aiContent\n      }\n    };\n  } catch (e) {\n    return { json: { ...item.json, error: 'AI Parse Error' } };\n  }\n});\nreturn results;"
+      },
+      "id": "parse-ai",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.filter(item => item.json.ai && item.json.ai.confidence !== 'low');"
+      },
+      "id": "filter-confidence",
+      "name": "Filter Low Confidence",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const mutations = items.map(item => {\n  const news = item.json.ai;\n  const rawSlug = news.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || 'untitled-' + Date.now();\n  \n  return {\n    create: {\n      _type: 'article',\n      title: news.title,\n      source: 'Fi.News AI',\n      sourceUrl: item.json.link,\n      publishedAt: new Date().toISOString(),\n      summary: news.summary,\n      category: news.category,\n      content: news.content.split('\n\n').map(p => ({ _type: 'block', children: [{ _type: 'span', text: p }] })),\n      tags: news.tags,\n      slug: {\n        _type: 'slug',\n        current: rawSlug\n      }\n    }\n  };\n});\n\nreturn [\n  {\n    json: {\n      mutations\n    }\n  }\n];"
+      },
+      "id": "prepare-sanity",
+      "name": "Prepare Sanity Batch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1500, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://y9yii7ro.api.sanity.io/v2021-06-07/data/mutate/production",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer YOUR_SANITY_TOKEN_HERE" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "mutations", "value": "={{ $json.mutations }}" }
+          ]
+        }
+      },
+      "id": "save-sanity",
+      "name": "Save to Sanity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1700, 300]
+    }
+  ],
+  "connections": {
+    "Schedule (Every Hour)": {
+      "main": [
+        [
+          { "node": "RSS: CoinDesk", "type": "main", "index": 0 },
+          { "node": "RSS: Cointelegraph", "type": "main", "index": 0 },
+          { "node": "RSS: TechCrunch", "type": "main", "index": 0 },
+          { "node": "RSS: MarketWatch", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "RSS: CoinDesk": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 0 }]] },
+    "RSS: Cointelegraph": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 1 }]] },
+    "RSS: TechCrunch": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 2 }]] },
+    "RSS: MarketWatch": { "main": [[{ "node": "Merge Feeds", "type": "main", "index": 3 }]] },
+    "Merge Feeds": { "main": [[{ "node": "AI Editor (OpenAI)", "type": "main", "index": 0 }]] },
+    "AI Editor (OpenAI)": { "main": [[{ "node": "Parse AI Response", "type": "main", "index": 0 }]] },
+    "Parse AI Response": { "main": [[{ "node": "Filter Low Confidence", "type": "main", "index": 0 }]] },
+    "Filter Low Confidence": { "main": [[{ "node": "Prepare Sanity Batch", "type": "main", "index": 0 }]] },
+    "Prepare Sanity Batch": { "main": [[{ "node": "Save to Sanity", "type": "main", "index": 0 }]] }
+  }
+}
