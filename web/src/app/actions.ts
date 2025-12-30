@@ -46,16 +46,19 @@ export async function getArticles(lastPublishedAt: string | null, category?: str
         saves
       }`
 
-  const params = {
-    category,
+  const params: { category?: string; lastPublishedAt: string | null } = {
     lastPublishedAt
   }
+  
+  if (category) {
+    params.category = category
+  }
 
-  return client.fetch<Article[]>(query, params)
+  return client.fetch(query, params)
 }
 
 export async function getArticleBySlug(slug: string) {
-  return client.fetch<Article>(
+  return client.fetch(
     `*[_type == "article" && slug.current == $slug][0]`,
     { slug }
   )
@@ -63,7 +66,7 @@ export async function getArticleBySlug(slug: string) {
 
 export async function getRelatedArticles(currentId: string) {
   // Fetch 20 latest articles excluding the current one
-  return client.fetch<Article[]>(
+  return client.fetch(
     `*[_type == "article" && _id != $currentId] | order(publishedAt desc) [0...20] {
       _id,
       title,
@@ -88,7 +91,7 @@ export interface SiteSettings {
 }
 
 export async function getSiteSettings() {
-  return client.fetch<SiteSettings>(
+  return client.fetch(
     `*[_type == "siteSettings"][0]`
   )
 }
@@ -107,14 +110,14 @@ export interface Tweet {
 }
 
 export async function getTweets() {
-  return client.fetch<Tweet[]>(
+  return client.fetch(
     `*[_type == "tweet"] | order(publishedAt desc) [0...20]`
   )
 }
 
 export async function getAdjacentArticles(currentId: string, publishedAt: string) {
   const [prev, next] = await Promise.all([
-    client.fetch<Article>(
+    client.fetch(
       `*[_type == "article" && publishedAt < $publishedAt] | order(publishedAt desc)[0] {
         _id,
         title,
@@ -122,7 +125,7 @@ export async function getAdjacentArticles(currentId: string, publishedAt: string
       }`,
       { publishedAt }
     ),
-    client.fetch<Article>(
+    client.fetch(
       `*[_type == "article" && publishedAt > $publishedAt] | order(publishedAt asc)[0] {
         _id,
         title,
