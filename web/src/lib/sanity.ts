@@ -119,7 +119,7 @@ export const client = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
       apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
       useCdn: false,
     })
-  : mockClient as any;
+  : (mockClient as any);
 
 const builder = createImageUrlBuilder(client)
 
