@@ -63,7 +63,7 @@ export default function Home() {
                 {/* Desktop Top Header (Hidden on Mobile) */}
                 <header className="h-12 border-b border-gray-200 dark:border-[#222] hidden md:flex items-center px-4 justify-between bg-white dark:bg-[#15191c] sticky top-0 z-10 shrink-0">
                 <div className="flex gap-4 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#777]">
-                    <span className="cursor-pointer hover:text-black dark:hover:text-white text-black dark:text-white">{t('nav.top_news')}</span>
+                    <span className="cursor-pointer hover:text-black dark:hover:text-white text-black dark:text-white">All News</span>
                     <span className="cursor-pointer hover:text-black dark:hover:text-white">{t('header.show_all')}</span>
                 </div>
                 <div className="flex items-center gap-2">
