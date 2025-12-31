@@ -59,17 +59,19 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
       <div className="h-14 px-4 flex items-center justify-between border-b border-[#222]">
         <div className="flex items-center gap-4">
            {/* Logo Icon */}
-           {settings?.logo ? (
-             <img 
-               src={urlFor(settings.logo).width(64).url()} 
-               alt={settings.title || 'Fi.News'} 
-               className="w-8 h-8 rounded object-cover"
-             />
-           ) : (
-             <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-black font-bold text-lg">
-               Fi
-             </div>
-           )}
+           <div onClick={() => window.location.href = '/'} className="cursor-pointer">
+             {settings?.logo ? (
+               <img 
+                 src={urlFor(settings.logo).width(64).url()} 
+                 alt={settings.title || 'Fi.News'} 
+                 className="w-8 h-8 rounded object-cover"
+               />
+             ) : (
+               <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-black font-bold text-lg">
+                 Fi
+               </div>
+             )}
+           </div>
            
            <div className="flex items-center gap-4">
               <div className="relative">
@@ -143,8 +145,10 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
                 <Moon className="w-5 h-5" />
              </button>
            )}
-           <Search className="w-5 h-5 text-gray-300" />
-           <Bell className="w-5 h-5 text-gray-300" />
+           <button onClick={() => { /* TODO: Implement search open */ }} className="text-gray-300 hover:text-white">
+              <Search className="w-5 h-5" />
+           </button>
+           {/* Bell icon removed */}
         </div>
       </div>
     </div>
