@@ -125,11 +125,11 @@ export function MobileMenu({ onClose }: { onClose: () => void }) {
            {cryptoData.map((item) => (
             <div 
                 key={item.symbol} 
-                className="flex items-center justify-between px-4 py-3 border-b border-[#1a1e21]"
+                className="flex items-center justify-between px-4 py-2 border-b border-[#1a1e21]"
             >
-                <div className="text-xs font-bold text-gray-300 w-12">{item.symbol}</div>
-                <div className="text-xs font-medium text-gray-200 flex-1 text-right mr-3">{item.price}</div>
-                <div className={`text-xs font-medium w-12 text-right ${item.change >= 0 ? 'text-[#28C76F]' : 'text-[#EA4E4E]'}`}>
+                <div className="text-[10px] font-bold text-gray-300 w-12">{item.symbol}</div>
+                <div className="text-[10px] font-medium text-gray-200 flex-1 text-right mr-3">{item.price}</div>
+                <div className={`text-[10px] font-medium w-12 text-right ${item.change >= 0 ? 'text-[#28C76F]' : 'text-[#EA4E4E]'}`}>
                     {item.change >= 0 ? '+' : ''}{item.change}%
                 </div>
             </div>
@@ -142,11 +142,11 @@ export function MobileMenu({ onClose }: { onClose: () => void }) {
            {stockData.map((item) => (
             <div 
                 key={item.symbol} 
-                className="flex items-center justify-between px-4 py-3 border-b border-[#1a1e21]"
+                className="flex items-center justify-between px-4 py-2 border-b border-[#1a1e21]"
             >
-                <div className="text-xs font-bold text-gray-300 w-12">{item.symbol}</div>
-                <div className="text-xs font-medium text-gray-200 flex-1 text-right mr-3">{item.price}</div>
-                <div className={`text-xs font-medium w-12 text-right ${item.change >= 0 ? 'text-[#28C76F]' : 'text-[#EA4E4E]'}`}>
+                <div className="text-[10px] font-bold text-gray-300 w-12">{item.symbol}</div>
+                <div className="text-[10px] font-medium text-gray-200 flex-1 text-right mr-3">{item.price}</div>
+                <div className={`text-[10px] font-medium w-12 text-right ${item.change >= 0 ? 'text-[#28C76F]' : 'text-[#EA4E4E]'}`}>
                     {item.change >= 0 ? '+' : ''}{item.change}%
                 </div>
             </div>
@@ -185,7 +185,7 @@ export function MobileMenu({ onClose }: { onClose: () => void }) {
 
 function MenuLink({ label, href }: { label: string, href: string }) {
   return (
-    <Link href={href} className="block px-4 py-3 border-b border-[#222] text-sm font-medium text-gray-300 hover:bg-[#1e2327] hover:text-white transition-colors uppercase tracking-wider">
+    <Link href={href} className="block px-4 py-3 border-b border-[#222] text-xs font-medium text-gray-300 hover:bg-[#1e2327] hover:text-white transition-colors uppercase tracking-wider">
        {label}
     </Link>
   )
