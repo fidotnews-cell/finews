@@ -4,6 +4,7 @@ import { getArticles, Article, getSiteSettings, SiteSettings } from '@/app/actio
 import { ArticleFeed } from '@/components/ArticleFeed'
 import { ArticleDetail } from '@/components/ArticleDetail'
 import { MarketSidebar } from '@/components/MarketSidebar'
+import { MobileMarketBar } from '@/components/MobileMarketBar'
 import { RightSidebar } from '@/components/RightSidebar'
 import { Footer } from '@/components/Footer'
 import { MobileHeader } from '@/components/MobileHeader'
@@ -40,7 +41,12 @@ export default function Home() {
       
       {/* Mobile Header (Visible only on mobile when no article is selected) */}
       <div className="md:hidden">
-          {!selectedArticle && <MobileHeader onMenuClick={() => setShowMobileMenu(true)} />}
+          {!selectedArticle && (
+            <>
+              <MobileHeader onMenuClick={() => setShowMobileMenu(true)} />
+              <MobileMarketBar />
+            </>
+          )}
       </div>
 
       <div className="flex flex-col flex-1 min-w-0 h-full relative">

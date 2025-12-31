@@ -23,7 +23,10 @@ export function ArticleFeed({
   const [articles, setArticles] = useState<Article[]>(initialArticles)
   const [displayedArticles, setDisplayedArticles] = useState<Article[]>(initialArticles)
   const [hasMore, setHasMore] = useState(true)
-  const { ref, inView } = useInView()
+  const [isLoading, setIsLoading] = useState(false)
+  const { ref, inView } = useInView({
+    rootMargin: '200px', // Trigger 200px before bottom
+  })
   const { t, language } = useLanguage()
   const { interactions, isAdminMode, getArticleStats, likeArticle, saveArticle, updateLikes, togglePin } = useArticleInteractions()
 
@@ -32,6 +35,7 @@ export function ArticleFeed({
     setArticles(initialArticles)
     setDisplayedArticles(initialArticles)
     setHasMore(true)
+    setIsLoading(false)
   }, [initialArticles, category])
 
   // Handle translation whenever articles, language, or interactions changes
@@ -81,30 +85,38 @@ export function ArticleFeed({
   }, [articles, language, interactions]) // Depend on interactions to trigger re-render
 
   async function loadMore() {
-    if (articles.length === 0) return
-    const lastArticle = articles[articles.length - 1]
-    const newArticles = await getArticles(lastArticle.publishedAt, category)
+    if (articles.length === 0 || isLoading || !hasMore) return
     
-    if (newArticles.length === 0) {
-      setHasMore(false)
-    } else {
-      // Filter out duplicates just in case
-      const existingIds = new Set(articles.map((a: Article) => a._id))
-      const uniqueNewArticles = newArticles.filter((a: Article) => !existingIds.has(a._id))
+    setIsLoading(true)
+    try {
+      const lastArticle = articles[articles.length - 1]
+      const newArticles = await getArticles(lastArticle.publishedAt, category)
       
-      if (uniqueNewArticles.length === 0) {
+      if (newArticles.length === 0) {
         setHasMore(false)
       } else {
-        setArticles(prev => [...prev, ...uniqueNewArticles])
+        // Filter out duplicates just in case
+        const existingIds = new Set(articles.map((a: Article) => a._id))
+        const uniqueNewArticles = newArticles.filter((a: Article) => !existingIds.has(a._id))
+        
+        if (uniqueNewArticles.length === 0) {
+          setHasMore(false)
+        } else {
+          setArticles(prev => [...prev, ...uniqueNewArticles])
+        }
       }
+    } catch (error) {
+      console.error('Failed to load more articles:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    if (inView && hasMore) {
+    if (inView && hasMore && !isLoading) {
       loadMore()
     }
-  }, [inView, hasMore])
+  }, [inView, hasMore, isLoading])
 
   const handleLike = (e: React.MouseEvent, articleId: string) => {
     e.stopPropagation()

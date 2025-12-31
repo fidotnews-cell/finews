@@ -5,6 +5,7 @@ import { ArticleFeed } from '@/components/ArticleFeed'
 import { ArticleDetail } from '@/components/ArticleDetail'
 import { RightSidebar } from '@/components/RightSidebar'
 import { MarketSidebar } from '@/components/MarketSidebar'
+import { MobileMarketBar } from '@/components/MobileMarketBar'
 import { Footer } from '@/components/Footer'
 import { MobileHeader } from '@/components/MobileHeader'
 import { MobileBottomNav } from '@/components/MobileBottomNav'
@@ -29,7 +30,12 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
       
       {/* Mobile Header */}
       <div className="md:hidden">
-          {!selectedArticle && <MobileHeader onMenuClick={() => setShowMobileMenu(true)} />}
+          {!selectedArticle && (
+            <>
+              <MobileHeader onMenuClick={() => setShowMobileMenu(true)} />
+              <MobileMarketBar />
+            </>
+          )}
       </div>
 
       <div className="flex flex-col flex-1 min-w-0 h-full relative">

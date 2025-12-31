@@ -123,6 +123,25 @@ export async function getTweets() {
   ) as Promise<Tweet[]>
 }
 
+export async function getHotArticles(limit: number = 10) {
+  // Simple heuristic for "Hot": most likes
+  return client.fetch(
+    `*[_type == "article"] | order(likes desc) [0...$limit] {
+      _id,
+      title,
+      slug,
+      publishedAt,
+      summary,
+      category,
+      source,
+      likes,
+      dislikes,
+      saves
+    }`,
+    { limit }
+  ) as Promise<Article[]>
+}
+
 export async function getAdjacentArticles(currentId: string, publishedAt: string) {
   const [prev, next] = await Promise.all([
     client.fetch(

@@ -148,25 +148,6 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
            <Menu className="w-6 h-6 text-white cursor-pointer" onClick={onMenuClick} />
         </div>
       </div>
-
-      {/* Ticker */}
-      <div className="h-8 bg-black flex items-center px-4 overflow-x-auto whitespace-nowrap scrollbar-hide gap-6 border-b border-[#222]">
-         <div className="flex items-center gap-2 text-xs">
-            <span className="text-gray-400">BTC</span>
-            <span className="text-white font-medium">$86,948</span>
-            <span className="text-red-500">-0.96%</span>
-         </div>
-         <div className="flex items-center gap-2 text-xs">
-            <span className="text-gray-400">ETH</span>
-            <span className="text-white font-medium">$2,918.8</span>
-            <span className="text-red-500">-0.74%</span>
-         </div>
-         <div className="flex items-center gap-2 text-xs">
-            <span className="text-gray-400">USDT</span>
-            <span className="text-white font-medium">$0.999</span>
-            <span className="text-red-500">-0.01%</span>
-         </div>
-      </div>
     </div>
   )
 }

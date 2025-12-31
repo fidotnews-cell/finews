@@ -1,6 +1,6 @@
 'use client'
 
-import { Rss, Flame, Crown, Briefcase, BookOpen, Menu } from 'lucide-react'
+import { Rss, Flame, Menu } from 'lucide-react'
 
 interface MobileBottomNavProps {
   onMenuClick: () => void
@@ -9,7 +9,7 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ onMenuClick, activeTab = 'news' }: MobileBottomNavProps) {
   return (
-    <div className="h-16 bg-[#0d0f12] border-t border-[#222] flex items-center justify-between px-2 shrink-0 md:hidden z-50">
+    <div className="h-16 bg-[#0d0f12] border-t border-[#222] flex items-center justify-around px-4 shrink-0 md:hidden z-50">
       <button className={`flex flex-col items-center gap-1 p-2 min-w-[60px] ${activeTab === 'news' ? 'text-white' : 'text-gray-500'}`}>
         <Rss className="w-5 h-5" />
         <span className="text-[10px] font-medium">News</span>
@@ -17,26 +17,14 @@ export function MobileBottomNav({ onMenuClick, activeTab = 'news' }: MobileBotto
       
       <button className="flex flex-col items-center gap-1 p-2 min-w-[60px] text-gray-500">
         <Flame className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Rising</span>
+        <span className="text-[10px] font-medium">Hot</span>
       </button>
 
-      <button className="flex flex-col items-center gap-1 p-2 min-w-[60px] text-yellow-500">
-        <Crown className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Get PLUS</span>
-      </button>
-
-      <button className="flex flex-col items-center gap-1 p-2 min-w-[60px] text-gray-500">
-        <Briefcase className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Portfolio</span>
-      </button>
-
-      <button className="flex flex-col items-center gap-1 p-2 min-w-[60px] text-gray-500">
-        <BookOpen className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Guides</span>
-      </button>
-
-      <button onClick={onMenuClick} className="flex flex-col items-center gap-1 p-2 min-w-[60px] text-gray-500 ml-auto border-l border-[#222]">
+      {/* Placeholder to balance the layout if needed, or just keep 2 main items + Menu */}
+      
+      <button onClick={onMenuClick} className="flex flex-col items-center gap-1 p-2 min-w-[60px] text-gray-500">
         <Menu className="w-6 h-6 text-white" />
+        <span className="text-[10px] font-medium">Menu</span>
       </button>
     </div>
   )

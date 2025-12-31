@@ -1,19 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Article, translateArticle, getRelatedArticles, getAdjacentArticles } from '@/app/actions'
+import { Article, translateArticle, getRelatedArticles, getAdjacentArticles, getHotArticles } from '@/app/actions'
 import { PortableText } from '@portabletext/react'
 import { TimeAgo } from '@/components/TimeAgo'
 import { useLanguage } from '@/components/LanguageProvider'
-import { ChevronLeft, ChevronRight, ArrowLeft, ThumbsUp, ThumbsDown, Share2, Bookmark, ExternalLink, MessageSquare } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, ThumbsUp, ThumbsDown, Share2, Bookmark, ExternalLink, MessageSquare, Flame } from 'lucide-react'
 import Link from 'next/link'
 import { Twitter, Facebook, Linkedin, Send } from 'lucide-react'
 import { useArticleInteractions } from '@/context/ArticleInteractionContext'
+import { MobileHeader } from '@/components/MobileHeader'
+import { MobileMarketBar } from '@/components/MobileMarketBar'
 
 export function ArticleDetail({ article: initialArticle, onClose }: { article: Article, onClose?: () => void }) {
   const [article, setArticle] = useState<Article>(initialArticle)
   const [translatedArticle, setTranslatedArticle] = useState<Article | null>(null)
   const [adjacentArticles, setAdjacentArticles] = useState<{ prev: Article | null, next: Article | null }>({ prev: null, next: null })
+  const [hotArticles, setHotArticles] = useState<Article[]>([])
   const [translating, setTranslating] = useState(false)
   const { t, language } = useLanguage()
   const { getArticleStats, likeArticle, dislikeArticle, saveArticle, interactions } = useArticleInteractions()
@@ -33,6 +36,9 @@ export function ArticleDetail({ article: initialArticle, onClose }: { article: A
     
     // Fetch adjacent articles
     getAdjacentArticles(initialArticle._id, initialArticle.publishedAt).then(setAdjacentArticles)
+
+    // Fetch Hot Articles
+    getHotArticles(10).then(setHotArticles)
   }, [initialArticle, getArticleStats]) // Re-run when initialArticle changes. 
   // Wait, if context updates (interactions), we also need to update 'article' state.
 
@@ -98,14 +104,23 @@ export function ArticleDetail({ article: initialArticle, onClose }: { article: A
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#0d0f12] overflow-y-auto">
        {/* Top Bar (Mobile) */}
-       <div className="sticky top-0 z-10 bg-[#0d0f12] text-white px-4 h-12 flex items-center justify-between shrink-0 md:hidden border-b border-[#222]">
-          <button onClick={onClose} className="text-sm font-bold tracking-wider flex items-center gap-1">
-             <ChevronLeft className="w-4 h-4" /> BACK
-          </button>
-          <div className="flex items-center gap-2">
-             <span className="text-sm font-bold tracking-wider">HOME</span>
-             <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-black text-[10px] font-bold">Fi</div>
-          </div>
+       <div className="md:hidden sticky top-0 z-20">
+          <MobileHeader onMenuClick={() => {
+              // If menu is clicked in detail view, we might want to just close detail or show menu?
+              // The user said "click home button to go back to home".
+              // MobileHeader has a logo. Let's assume clicking logo in MobileHeader goes home.
+              // But MobileHeader logo doesn't have an onClick prop exposed, it's internal.
+              // Actually MobileHeader takes onMenuClick.
+              // Let's wrap MobileHeader or ensure logo click works.
+              // Since MobileHeader component has hardcoded logo click behavior (it's just an image or div),
+              // we might need to modify MobileHeader to accept an onLogoClick prop or use Link.
+              // BUT, here we want to go back to list when "Home" is clicked.
+              // The user said "top right logo cannot display properly". MobileHeader has logo on LEFT.
+              // The user might be referring to the PREVIOUS top bar I implemented in ArticleDetail which had a logo on RIGHT.
+              // "putting the home page top bar to the detail page top" -> Use MobileHeader.
+              if (onClose) onClose()
+          }} />
+          <MobileMarketBar />
        </div>
 
        {/* Top Bar (Desktop) */}
@@ -216,6 +231,45 @@ export function ArticleDetail({ article: initialArticle, onClose }: { article: A
                 </a>
              </div>
           )}
+
+          {/* Hot News Section (Mobile Only) */}
+          <div className="md:hidden mt-8 pt-8 border-t border-gray-200 dark:border-[#222]">
+             <div className="flex items-center gap-2 mb-4">
+               <Flame className="w-4 h-4 text-orange-500" />
+               <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Hot News</h3>
+             </div>
+             <div className="flex flex-col gap-4">
+               {hotArticles.map(hot => (
+                 <div 
+                   key={hot._id}
+                   className="flex flex-col gap-1 cursor-pointer"
+                   onClick={() => {
+                     // Since we are already in Detail view, we probably need to switch article
+                     // But ArticleDetail is controlled by parent. 
+                     // We can't easily switch unless we use a callback or Link.
+                     // BUT, ArticleDetail is currently rendered conditionally in page.tsx
+                     // If we want to navigate, we should probably reload the page or use a callback if provided.
+                     // Wait, page.tsx passes `onArticleSelect` to ArticleFeed but not ArticleDetail.
+                     // ArticleDetail receives `onClose`.
+                     // We might need to refresh the page or change the URL if we are using Next.js routing.
+                     // Since this is a "modal-like" view on desktop but full page on mobile (conceptually),
+                     // ideally we should link to /news/[slug].
+                     // Let's use window.location for now or Link component if we can wrapper it.
+                     // Actually, we can just use a Link component for the title.
+                   }}
+                 >
+                   <Link href={`/news/${hot.slug.current}`} className="text-sm font-medium text-gray-800 dark:text-gray-200 line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400">
+                     {hot.title}
+                   </Link>
+                   <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                      <TimeAgo dateString={hot.publishedAt} />
+                      <span>•</span>
+                      <span>{hot.likes || 0} Likes</span>
+                   </div>
+                 </div>
+               ))}
+             </div>
+          </div>
        </div>
 
        {/* Bottom Actions - Removed since moved up */}
