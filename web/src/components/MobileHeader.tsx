@@ -1,6 +1,7 @@
 'use client'
 
 import { Search, Menu, ChevronDown, Check, ChevronRight, Moon, X, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { useLanguage } from './LanguageProvider'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
@@ -92,15 +93,29 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
                                 <div 
                                     className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#222] hover:text-white flex items-center justify-between cursor-pointer"
                                     onClick={() => {
-                                        setSelectedCategory(cat)
-                                        setIsDropdownOpen(false)
+                                        // If no subcategories, navigate immediately
+                                        if (!cat.subCategories) {
+                                            window.location.href = cat.id === 'top_news' ? '/' : `/${cat.id}`
+                                            setSelectedCategory(cat)
+                                            setIsDropdownOpen(false)
+                                        } else {
+                                            // Toggle expand
+                                            setExpandedCategories(prev => 
+                                                prev.includes(cat.id) 
+                                                  ? prev.filter(id => id !== cat.id)
+                                                  : [...prev, cat.id]
+                                            )
+                                        }
                                     }}
                                 >
                                     <span>{cat.label}</span>
                                     <div className="flex items-center gap-2">
                                         {cat.subCategories && (
                                             <div 
-                                                onClick={(e) => toggleExpand(e, cat.id)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation() // Prevent parent click
+                                                    toggleExpand(e, cat.id)
+                                                }}
                                                 className="p-1 rounded text-gray-300 hover:text-white"
                                             >
                                                 {expandedCategories.includes(cat.id) ? (
@@ -117,16 +132,17 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
                                 {cat.subCategories && expandedCategories.includes(cat.id) && (
                                     <div className="bg-[#1a1e23] border-t border-[#222]">
                                         {cat.subCategories.map(sub => (
-                                            <button
+                                            <Link
                                                 key={sub.id}
+                                                href={`/${sub.id}`} // Assuming category pages exist
                                                 onClick={() => {
-                                                    setSelectedCategory({ ...sub, label: `${cat.label} - ${sub.label}` }) // Or just sub.label
+                                                    setSelectedCategory({ ...sub, label: `${cat.label} - ${sub.label}` })
                                                     setIsDropdownOpen(false)
                                                 }}
-                                                className="w-full text-left px-8 py-2 text-xs text-gray-400 hover:bg-[#222] hover:text-white flex items-center justify-between"
+                                                className="w-full text-left px-8 py-2 text-xs text-gray-400 hover:bg-[#222] hover:text-white flex items-center justify-between block"
                                             >
                                                 {sub.label}
-                                            </button>
+                                            </Link>
                                         ))}
                                     </div>
                                 )}
@@ -135,9 +151,7 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
                     </div>
                   )}
               </div>
-              <button className="flex items-center gap-1 text-sm text-gray-300">
-                 Show All
-              </button>
+              {/* Show All button removed */}
            </div>
         </div>
 
