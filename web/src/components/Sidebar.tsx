@@ -17,7 +17,7 @@ export function Sidebar() {
   }, [])
 
   const navItems = [
-    { name: t('nav.top_news'), path: '/' },
+    { name: 'All News', path: '/' },
     { name: t('nav.crypto'), path: '/crypto' },
     { name: t('nav.web3'), path: '/web3' },
     { name: t('nav.ai'), path: '/ai' },
