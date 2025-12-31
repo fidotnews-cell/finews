@@ -9,7 +9,7 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ onMenuClick, activeTab = 'news' }: MobileBottomNavProps) {
   return (
-    <div className="h-16 bg-[#0d0f12] border-t border-[#222] flex items-center justify-around px-4 shrink-0 md:hidden z-50">
+    <div className="h-16 bg-[#0d0f12] border-t border-[#222] flex items-center justify-around px-4 shrink-0 md:hidden z-50 sticky bottom-0 w-full">
       <button className={`flex flex-col items-center gap-1 p-2 min-w-[60px] ${activeTab === 'news' ? 'text-white' : 'text-gray-500'}`}>
         <Rss className="w-5 h-5" />
         <span className="text-[10px] font-medium">News</span>
