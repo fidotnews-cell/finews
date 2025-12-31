@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react'
 import { getSiteSettings, SiteSettings } from '@/app/actions'
 import { urlFor } from '@/lib/sanity'
 
+import { usePathname } from 'next/navigation'
+
 const CATEGORIES = [
   { id: 'top_news', label: 'All News' },
   { id: 'crypto', label: 'Crypto' },
@@ -30,9 +32,45 @@ const CATEGORIES = [
 export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const { t } = useLanguage()
   const { theme, setTheme } = useTheme()
+  const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
   const [settings, setSettings] = useState<SiteSettings | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0])
+  
+  // Find current category based on pathname
+  const getCurrentCategory = () => {
+    // If pathname is root or undefined, default to first category (All News)
+    if (!pathname || pathname === '/') return CATEGORIES[0]
+    
+    // Remove leading slash
+    const path = pathname.slice(1)
+    
+    // Check main categories
+    const mainCat = CATEGORIES.find(c => c.id === path)
+    if (mainCat) return mainCat
+    
+    // Check subcategories
+    for (const cat of CATEGORIES) {
+      if (cat.subCategories) {
+        const sub = cat.subCategories.find(s => s.id === path)
+        if (sub) {
+          // Return a constructed object that includes parent context if needed, 
+          // or just the subcategory with modified label
+          return { ...sub, label: `${cat.label} - ${sub.label}` }
+        }
+      }
+    }
+    
+    // Fallback to All News if not found (e.g. article detail page)
+    return CATEGORIES[0]
+  }
+
+  const [selectedCategory, setSelectedCategory] = useState(getCurrentCategory())
+  
+  // Update selected category when pathname changes
+  useEffect(() => {
+    setSelectedCategory(getCurrentCategory())
+  }, [pathname])
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
   const [isSearchOpen, setIsSearchOpen] = useState(false)
