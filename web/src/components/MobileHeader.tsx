@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Bell, Menu, ChevronDown, Check, ChevronRight, Moon } from 'lucide-react'
+import { Search, Menu, ChevronDown, Check, ChevronRight, Moon, X, ArrowRight } from 'lucide-react'
 import { useLanguage } from './LanguageProvider'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
@@ -156,31 +156,60 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
 
       {/* Search Overlay */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#15191c] w-full max-w-sm rounded-xl p-4 shadow-2xl border border-[#333] relative">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#15191c]/90 w-full max-w-sm rounded-xl p-4 shadow-2xl border border-[#333] relative">
             <button 
               onClick={() => setIsSearchOpen(false)}
-              className="absolute -top-12 right-0 text-white p-2"
+              className="absolute -top-12 right-0 text-white p-2 bg-[#222] rounded-full hover:bg-[#333] transition-colors"
             >
-              Close
+              <X className="w-5 h-5" />
             </button>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search news..." 
-                className="w-full bg-[#0d0f12] text-white pl-9 pr-4 py-3 rounded-lg border border-[#333] focus:border-blue-500 outline-none text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
+            <div className="relative flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search news..." 
+                  className="w-full bg-[#0d0f12] text-white pl-9 pr-4 py-3 rounded-lg border border-[#333] focus:border-blue-500 outline-none text-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                       // Trigger search
+                       console.log('Searching for:', searchQuery)
+                       setIsSearchOpen(false)
+                    }
+                  }}
+                  autoFocus
+                />
+              </div>
+              <button 
+                onClick={() => {
+                   console.log('Searching for:', searchQuery)
+                   setIsSearchOpen(false)
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
-            {/* Search Suggestions or Results could go here */}
+            {/* Search Suggestions */}
             <div className="mt-4">
                <p className="text-xs text-gray-500 uppercase font-bold mb-2">Popular</p>
                <div className="flex flex-wrap gap-2">
                   {['Bitcoin', 'Ethereum', 'AI', 'DeFi'].map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-[#222] rounded text-xs text-gray-300">{tag}</span>
+                    <button 
+                      key={tag} 
+                      onClick={() => {
+                        setSearchQuery(tag)
+                        // Optional: Auto search on click?
+                        // console.log('Searching for:', tag)
+                        // setIsSearchOpen(false)
+                      }}
+                      className="px-3 py-1.5 bg-[#222] hover:bg-[#333] rounded text-xs text-gray-300 transition-colors"
+                    >
+                      {tag}
+                    </button>
                   ))}
                </div>
             </div>
