@@ -9,7 +9,7 @@ import { getSiteSettings, SiteSettings } from '@/app/actions'
 import { urlFor } from '@/lib/sanity'
 
 const CATEGORIES = [
-  { id: 'top_news', label: 'Top News' },
+  { id: 'top_news', label: 'All News' },
   { id: 'crypto', label: 'Crypto' },
   { id: 'web3', label: 'Web3' },
   { id: 'ai', label: 'AI' },
