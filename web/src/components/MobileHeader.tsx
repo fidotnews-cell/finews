@@ -34,6 +34,8 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     setMounted(true)
@@ -145,12 +147,46 @@ export function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
                 <Moon className="w-5 h-5" />
              </button>
            )}
-           <button onClick={() => { /* TODO: Implement search open */ }} className="text-gray-300 hover:text-white">
+           <button onClick={() => setIsSearchOpen(true)} className="text-gray-300 hover:text-white">
               <Search className="w-5 h-5" />
            </button>
            {/* Bell icon removed */}
         </div>
       </div>
+
+      {/* Search Overlay */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#15191c] w-full max-w-sm rounded-xl p-4 shadow-2xl border border-[#333] relative">
+            <button 
+              onClick={() => setIsSearchOpen(false)}
+              className="absolute -top-12 right-0 text-white p-2"
+            >
+              Close
+            </button>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search news..." 
+                className="w-full bg-[#0d0f12] text-white pl-9 pr-4 py-3 rounded-lg border border-[#333] focus:border-blue-500 outline-none text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+            </div>
+            {/* Search Suggestions or Results could go here */}
+            <div className="mt-4">
+               <p className="text-xs text-gray-500 uppercase font-bold mb-2">Popular</p>
+               <div className="flex flex-wrap gap-2">
+                  {['Bitcoin', 'Ethereum', 'AI', 'DeFi'].map(tag => (
+                    <span key={tag} className="px-2 py-1 bg-[#222] rounded text-xs text-gray-300">{tag}</span>
+                  ))}
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
