@@ -90,7 +90,7 @@ export function RightSidebar({ onArticleSelect }: { onArticleSelect?: (article: 
       {/* More Button */}
       <div className="p-4">
         <Link 
-            href="/top-news" 
+            href="/" 
             className="flex items-center justify-center w-full py-2 bg-gray-100 dark:bg-[#222] hover:bg-gray-200 dark:hover:bg-[#333] text-xs font-medium text-gray-600 dark:text-gray-300 rounded transition-colors"
         >
             View More <ArrowRight className="w-3 h-3 ml-1" />
