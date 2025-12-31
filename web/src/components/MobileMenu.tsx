@@ -152,7 +152,7 @@ export function MobileMenu({ onClose }: { onClose: () => void }) {
             </div>
             ))}
 
-           <div className="p-3 text-center text-xs text-gray-600">
+           <div className="p-3 text-center text-[10px] text-gray-600">
              Use search to follow more currencies
            </div>
         </div>
@@ -185,7 +185,7 @@ export function MobileMenu({ onClose }: { onClose: () => void }) {
 
 function MenuLink({ label, href }: { label: string, href: string }) {
   return (
-    <Link href={href} className="block px-4 py-3 border-b border-[#222] text-xs font-medium text-gray-300 hover:bg-[#1e2327] hover:text-white transition-colors uppercase tracking-wider">
+    <Link href={href} className="block px-4 py-3 border-b border-[#222] text-[10px] font-medium text-gray-300 hover:bg-[#1e2327] hover:text-white transition-colors uppercase tracking-wider">
        {label}
     </Link>
   )
